@@ -1,127 +1,62 @@
-// import React, { useEffect, useRef, useState } from 'react';
-
-// function App() {
-//   const [time, setTime] = useState(0);
-//   const [start, setStart] = useState(false);
-//   const [stop, setStop] = useState(true);
-//   const intervalRef = useRef();
-
-//   useEffect(() => {
-//     if (start && !stop) {
-//       intervalRef.current = setInterval(() => {
-//         setTime((prevTime) => prevTime + 1);
-//       }, 1000);
-//     } else {
-//       clearInterval(intervalRef.current);
-//     }
-//     return () => clearInterval(intervalRef.current);
-//   }, [start, stop]);
-
-//   const handleStart = () => {
-//     setStart(!start);
-//     setStop(!stop);
-//   };
-
-//   const handleStop = () => {
-//     setStop(!stop);
-//   };
-
-//   const handleReset = () => {
-//     setTime(0);
-//     clearInterval(intervalRef.current);
-//     setStart(false);
-//     setStop(true);
-//   };
-
-//   return (
-//     <>
-//       <h1>Stopwatch</h1>
-//       <br />
-//       <br />
-//       <h1>{time}</h1>
-//       <br />
-//       <br />
-//       <button onClick={handleStart}>{start ? 'Pause' : 'Start'}</button>
-//       <button onClick={handleStop}>Stop</button>
-//       <button onClick={handleReset}>Reset</button>
-//     </>
-//   );
-// }
-
-// export default App;
-
-import React, { useEffect, useState } from 'react';
+import { set } from 'mongoose';
+import React, { useEffect, useRef, useState } from 'react'
 
 function App() {
-  const [time, setTime] = useState(0);
- const [timer,settimer]=useState("00:00:00");
-  const [start, setStart] = useState(false);
-  const [stop, setStop] = useState(true);
-  const [intervalId, setIntervalId] = useState(null);
+  const [count, setCount] = useState(0);
+  const [minute, setMinute] = useState(0);
+  const [hours,setHours]=useState(0)
+  const timer = useRef(null);
+  function handleStart() {
+    if (!timer.current) {
+      timer.current = setInterval(() => {
+        setCount(prev => {
+          if (prev === 59) {
+            setMinute(prevm => {
+              if (prevm === 59) {
+                setHours(prevh => prevh + 1);
+                return 0;
+              } else {
+                return prevm + 1;
+              }
+             
+            })
+            return 0;
+          } else {
+            return prev + 1;
+          }
+        })
+        
+      
+   },1000/60)
+   }
+  }
+  
 
-useEffect(() => {
-  //set time
-  const seconds = parseInt("98989");
-  const date = new Date(null);
-  date.setSeconds(seconds);
-
-  //format time
-  const hours = date.getUTCHours().toString().padStart(2, '0');
-  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-  const secondsFormatted = date.getUTCSeconds().toString().padStart(2, '0');
-  const formattedTime = `${hours}:${minutes}:${secondsFormatted}`;
-
-  setTime(formattedTime);
-}, []);
-useEffect(() => {
-  const date = new Date(null);
-  date.setSeconds(time);
-  const formattedTime = date.toISOString().substr(11, 8);
-  settimer(formattedTime);
-}, [time]);
-  useEffect(() => {
-    
-    if (start && !stop) {
-      const id = setInterval(() => {
-        setTime((prevTime) => prevTime - 1);
-      }, 1000);
-      setIntervalId(id);
-    } else {
-      clearInterval(intervalId);
-    }
-    return ()=>clearInterval(intervalId);
-    
-  }, [start, stop]);
-
-  const handleStart = () => {
-    setStart(!start);
-    setStop(!stop);
-  };
-
-  const handleStop = () => {
-    setStop(!stop);
-  };
-
-  const handleReset = () => {
-    setTime(0);
-    clearInterval(intervalId);
-    setStart(false);
-    setStop(true);
-  };
+  
+  function handlePause() {
+    clearInterval(timer.current)
+    timer.current = null;
+  }
+  function handleClear() {
+     clearInterval(timer.current)
+    timer.current = null;
+    setCount(0);
+    setCount(0)
+    setMinute(0)
+  }
 
   return (
-    <>
-      <h1>Stopwatch</h1>
-      <br />
-      <br />
-      <h1>{timer}</h1>
-      <br />
-      <br />
-      <button onClick={handleStart}>{start ? 'Pause' : 'Start'}</button>
-      <button onClick={handleStop}>Stop</button>
-      <button onClick={handleReset}>Reset</button>
-    </>
-  );
+    <div className='p-3'>
+      <div className='text-center text-[100px]   flex justify-center minw-[220px] border'>
+        <div >{ hours<10? '0'+hours:hours}</div>:<div>{minute<10? '0'+minute:minute}</div>: <div>{count<10? '0'+count:count}</div>
+      </div>
+      <div className='text-center flex justify-center'>
+        <button className="btn px-5 mx-5" onClick={handleStart}>Start</button>
+        <button className="btn px-5 mx-5" onClick={handlePause}>Pause</button>
+        <button className="btn px-5 mx-5" onClick={handleClear}>clear</button>
+      </div>
+    </div>
+  )
 }
 
-export default App;
+export default App
